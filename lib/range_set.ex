@@ -24,27 +24,63 @@ defmodule RangeSet do
   defp do_put(nil, a, b), do: {1, a, b, nil, nil}
   defp do_put({_height, low, high, left, right}, a, b) when b < low do
     left = do_put(left, a, b)
-    n low, high, left, right
+    n(low, high, left, right) |> do_balance
   end
   defp do_put({_height, low, high, left, right}, a, b) when a > high do
     right = do_put(right, a, b)
-    n low, high, left, right
+    n(low, high, left, right) |> do_balance
   end
   defp do_put({_height, low, high, _left, _right} = node, a, b) when a >= low and b <= high do
     node
   end
   defp do_put({_height, low, high, left, right}, a, b) when a < low and b <= high do
     left = do_put(left, a, low)
-    n low, high, left, right
+    n(low, high, left, right) |> do_balance
   end
   defp do_put({_height, low, high, left, right}, a, b) when a >= low and b > high do
     right = do_put(right, high, b)
-    n low, high, left, right
+    n(low, high, left, right) |> do_balance
   end
   defp do_put({_height, low, high, left, right}, a, b) when a < low and b > high do
     left = do_put(left, a, low)
     right = do_put(right, high, b)
-    n low, high, left, right
+    n(low, high, left, right) |> do_balance
+  end
+
+  defp do_rotate_left({_, low, high, left, {_, rlow, rhigh, rleft, rright}}) do
+    n(rlow, rhigh, n(low, high, left, rleft), rright)
+  end
+
+  defp do_rotate_right({_, low, high, {_, llow, lhigh, lleft, lright}, right}) do
+    n(llow, lhigh, lleft, n(low, high, lright, right))
+  end
+
+  defp do_balance(nil), do: nil
+  defp do_balance({_, low, high, left, right} = node) do
+    case h(left) - h(right) do
+      2 ->
+        {lheight, llow, lhigh, lleft, lright} = left
+        if h(lleft) - h(lright) > -1 do
+          # Left Left
+          node |> do_rotate_right
+        else
+          # Left Right
+          left = left |> do_rotate_left
+          n(low, high, left, right) |> do_rotate_right
+        end
+      -2 ->
+        {rheight, rlow, rhigh, rleft, rright} = right
+        if h(rleft) - h(rright) < 1 do
+          # Right Right
+          node |> do_rotate_left
+        else
+          # Right Left
+          right = right |> do_rotate_right
+          n(low, high, left, right) |> do_rotate_left
+        end
+      _ ->
+        node
+    end
   end
 
   defp h(nil), do: 0
