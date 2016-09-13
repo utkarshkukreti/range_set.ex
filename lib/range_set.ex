@@ -62,22 +62,20 @@ defmodule RangeSet do
         {lheight, llow, lhigh, lleft, lright} = left
         if h(lleft) - h(lright) > -1 do
           # Left Left
-          node |> do_rotate_right
+          node
         else
           # Left Right
-          left = left |> do_rotate_left
-          n(low, high, left, right) |> do_rotate_right
-        end
+          n(low, high, left |> do_rotate_left, right)
+        end |> do_rotate_right
       -2 ->
         {rheight, rlow, rhigh, rleft, rright} = right
         if h(rleft) - h(rright) < 1 do
           # Right Right
-          node |> do_rotate_left
+          node
         else
           # Right Left
-          right = right |> do_rotate_right
-          n(low, high, left, right) |> do_rotate_left
-        end
+          n(low, high, left, right |> do_rotate_right)
+        end |> do_rotate_left
       _ ->
         node
     end
