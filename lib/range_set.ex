@@ -24,29 +24,33 @@ defmodule RangeSet do
   defp do_put(nil, a, b), do: {1, a, b, nil, nil}
   defp do_put({_height, low, high, left, right}, a, b) when b < low do
     left = do_put(left, a, b)
-    {1 + max(h(left), h(right)), low, high, left, right}
+    n low, high, left, right
   end
   defp do_put({_height, low, high, left, right}, a, b) when a > high do
     right = do_put(right, a, b)
-    {1 + max(h(left), h(right)), low, high, left, right}
+    n low, high, left, right
   end
   defp do_put({_height, low, high, _left, _right} = node, a, b) when a >= low and b <= high do
     node
   end
   defp do_put({_height, low, high, left, right}, a, b) when a < low and b <= high do
     left = do_put(left, a, low)
-    {1 + max(h(left), h(right)), low, high, left, right}
+    n low, high, left, right
   end
   defp do_put({_height, low, high, left, right}, a, b) when a >= low and b > high do
     right = do_put(right, high, b)
-    {1 + max(h(left), h(right)), low, high, left, right}
+    n low, high, left, right
   end
   defp do_put({_height, low, high, left, right}, a, b) when a < low and b > high do
     left = do_put(left, a, low)
     right = do_put(right, high, b)
-    {1 + max(h(left), h(right)), low, high, left, right}
+    n low, high, left, right
   end
 
   defp h(nil), do: 0
   defp h({height, _, _, _, _}), do: height
+
+  defp n(low, high, left, right) do
+    {1 + max(h(left), h(right)), low, high, left, right}
+  end
 end
