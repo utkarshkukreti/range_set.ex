@@ -1,0 +1,2 @@
+defmodule RangeSet do
+end
