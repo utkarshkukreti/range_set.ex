@@ -37,4 +37,40 @@ defmodule RangeSetTest do
     |> Enum.map(fn _ -> Task.async(go) end)
     |> Enum.map(&Task.await/1)
   end
+
+  test "internal height should always be correct" do
+    # The maximum size of RangeSet to test.
+    max_size = 1024
+    # The ranges of integers to insert in the RangeSet.
+    maximums = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    # The number of tests to run per size of RangeSet.
+    tests = 100
+
+    go = fn ->
+      for maximum <- maximums do
+        Enum.reduce 1..max_size, RangeSet.new, fn _, range_set ->
+          a = Enum.random(0..maximum)
+          b = Enum.random(0..maximum)
+          range_set = RangeSet.put(range_set, a, b)
+          do_assert_height_correct range_set.root
+          range_set
+        end
+      end
+    end
+
+    1..tests
+    |> Enum.map(fn _ -> Task.async(go) end)
+    |> Enum.map(&Task.await/1)
+  end
+
+  defp do_assert_height_correct(nil), do: :ok
+  defp do_assert_height_correct({height, _, _, left, right}) do
+    h = fn
+      nil -> 0
+      {height, _, _, _, _} -> height
+    end
+    assert height == 1 + max(h.(left), h.(right))
+    do_assert_height_correct left
+    do_assert_height_correct right
+  end
 end
