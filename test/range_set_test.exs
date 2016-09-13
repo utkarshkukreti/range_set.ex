@@ -16,9 +16,9 @@ defmodule RangeSetTest do
     # The number of random integers to check for contains?/2
     checks = 100
 
-    for size <- sizes do
-      for maximum <- maximums do
-        for _ <- 1..tests do
+    go = fn ->
+      for size <- sizes do
+        for maximum <- maximums do
           ranges = for _ <- 1..size, do: Enum.random(0..maximum)..Enum.random(0..maximum)
           range_set = Enum.reduce(ranges, RangeSet.new, fn a..b, range_set ->
             RangeSet.put(range_set, a, b)
@@ -32,5 +32,9 @@ defmodule RangeSetTest do
         end
       end
     end
+
+    1..tests
+    |> Enum.map(fn _ -> Task.async(go) end)
+    |> Enum.map(&Task.await/1)
   end
 end
