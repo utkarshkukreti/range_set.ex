@@ -2,7 +2,7 @@ defmodule RangeSetTest do
   use ExUnit.Case
   doctest RangeSet
 
-  test "the truth" do
-    assert 1 + 1 == 2
+  test "new/0" do
+    assert %RangeSet{root: nil} = RangeSet.new
   end
 end
