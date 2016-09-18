@@ -2,6 +2,8 @@ defmodule RangeSetTest do
   use ExUnit.Case
   doctest RangeSet
 
+  alias RangeSet.Node
+
   test "new/0" do
     assert %RangeSet{root: nil} = RangeSet.new
   end
@@ -66,18 +68,15 @@ defmodule RangeSetTest do
 
   defp do_assert_height_correct(nil), do: :ok
   defp do_assert_height_correct({height, _, _, left, right}) do
-    assert height == 1 + max(height(left), height(right))
+    assert height == 1 + max(Node.height(left), Node.height(right))
     do_assert_height_correct left
     do_assert_height_correct right
   end
 
   defp do_assert_balanced(nil), do: :ok
   defp do_assert_balanced({_, _, _, left, right}) do
-    assert height(left) - height(right) in [-1, 0, 1]
+    assert Node.height(left) - Node.height(right) in [-1, 0, 1]
     do_assert_balanced left
     do_assert_balanced right
   end
-
-  defp height(nil), do: 0
-  defp height({height, _, _, _, _}), do: height
 end
