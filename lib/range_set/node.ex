@@ -55,7 +55,7 @@ defmodule RangeSet.Node do
     case height(left) - height(right) do
       2 ->
         {lheight, llow, lhigh, lleft, lright} = left
-        if height(lleft) - height(lright) > -1 do
+        if height(lleft) - height(lright) >= 0 do
           # Left Left
           node
         else
@@ -64,7 +64,7 @@ defmodule RangeSet.Node do
         end |> rotate_right
       -2 ->
         {rheight, rlow, rhigh, rleft, rright} = right
-        if height(rleft) - height(rright) < 1 do
+        if height(rleft) - height(rright) <= 0 do
           # Right Right
           node
         else
